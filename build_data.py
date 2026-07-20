@@ -55,6 +55,7 @@ def build(paths, outdir):
             series.append({
                 'd': date,
                 'p': trimmed(units),                    # 대표가(중앙값)
+                'a': sum(units) // len(units),          # 단순 평균 (툴팁용)
                 'lo': min(units), 'hi': max(units),
                 'n': len(daily[date]),                  # 거래 건수
                 'q': sum(r['qty'] for r in daily[date]) # 거래 수량
@@ -70,7 +71,7 @@ def build(paths, outdir):
             return units[min(len(units)-1, int(len(units)*f))]
         pct = [qt(.1), qt(.25), qt(.5), qt(.75), qt(.9)]
 
-        recent = sorted(rows, key=lambda r: (r['date'], r['ts']))[-60:]
+        recent = sorted(rows, key=lambda r: (r['date'], r['ts']))[-100:]
         last = series[-1]
         prev = series[-2] if len(series) > 1 else last
         chg = round((last['p'] - prev['p']) / prev['p'] * 100, 1) if prev['p'] else 0.0
