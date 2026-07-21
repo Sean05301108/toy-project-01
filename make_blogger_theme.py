@@ -69,7 +69,9 @@ a{color:inherit}
 .search svg{flex:0 0 20px;stroke:var(--sub)}
 .clearq{flex:0 0 auto;color:var(--faint);font-size:20px;line-height:1;padding:4px}
 
-.chips{display:flex;gap:8px;padding:14px 20px 6px;overflow-x:auto;scrollbar-width:none}
+.catlab{font-size:13px;font-weight:600;color:var(--faint);text-align:center;
+  margin:18px 0 0;letter-spacing:.3px}
+.chips{display:flex;gap:8px;padding:10px 20px 6px;overflow-x:auto;scrollbar-width:none}
 .chips::-webkit-scrollbar{display:none}
 .chip{white-space:nowrap;padding:11px 16px;border-radius:999px;background:var(--line);
   font-size:15px;font-weight:600;color:var(--sub);transition:.15s}
@@ -79,7 +81,9 @@ a{color:inherit}
 .rows{display:block}
 .row{display:flex;align-items:center;gap:12px;padding:14px 20px;width:100%;
   min-height:72px;text-align:left;transition:background .12s}
-.row:hover{background:#F9FAFB}
+.row{cursor:pointer}
+.row:hover{background:#F2F6FD}
+.row:hover .rname{color:var(--blue)}
 .row:active{background:var(--line)}
 .rank{width:22px;font-size:15px;font-weight:700;color:var(--faint);flex:0 0 22px}
 
@@ -159,6 +163,15 @@ a{color:inherit}
   padding:22px 0 10px}
 .tbar .sec{padding:0}
 .sortbtns{display:flex;gap:6px}
+.optsearch{flex:1;min-width:130px;max-width:240px;margin:0 10px}
+.optsearch input{width:100%;border:1.5px solid var(--border);border-radius:10px;
+  padding:9px 12px;font-size:14px;font-family:inherit;outline:none;color:var(--text)}
+.optsearch input:focus{border-color:var(--blue)}
+.optbox{border:1px solid var(--border);border-radius:16px;padding:18px;margin:20px 0 4px}
+.optgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px}
+.optcell{background:var(--line);border-radius:12px;padding:12px}
+.optk{font-size:12px;color:var(--sub);font-weight:600}
+.optv{font-size:16px;font-weight:700;margin-top:4px}
 .sortb{padding:8px 12px;border-radius:10px;background:var(--line);font-size:14px;
   font-weight:600;color:var(--sub)}
 .sortb[data-on]{background:var(--text);color:#fff}
@@ -236,12 +249,16 @@ a{color:inherit}
 .homelink{display:inline-block;margin:8px 0 0;padding:12px 20px;border-radius:12px;
   background:var(--line);font-weight:600;font-size:15px;text-decoration:none}
 
+.head.center{text-align:center}
+.head.center + .search{margin-left:auto;margin-right:auto}
+.head.center ~ .chips{justify-content:center}
+
 /* ── 태블릿 ── */
 @media(min-width:768px){
   #shell{max-width:768px}
   .tabs{max-width:768px}
-  .rows{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2px;padding:0 10px}
-  .row{border-radius:12px;padding:14px 12px}
+  .rows{max-width:760px;margin:0 auto}
+  .row{border-radius:12px}
   .stats{grid-template-columns:repeat(4,minmax(0,1fr))}
   .detail{padding:16px 28px 0}
   .related{margin-left:-28px;margin-right:-28px;padding:0 28px}
@@ -260,14 +277,14 @@ a{color:inherit}
   .tab[data-on]{border-bottom-color:var(--text)}
   .head{padding:34px 28px 8px}
   .h1{font-size:32px}
-  .search{margin:20px 28px 4px;max-width:560px}
+  .search{margin:20px auto 4px;max-width:760px}
   .chips{padding:16px 28px 6px}
   .sec{padding:24px 28px 8px}
-  .rows{grid-template-columns:repeat(3,minmax(0,1fr));padding:0 16px}
+  .rows{max-width:820px;margin:0 auto;padding:0 8px}
   .detail{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 44px;
     align-items:start;padding:20px 28px 40px}
-  .detail{display:block}
-  .trades{max-width:640px}
+  .detail{display:block;max-width:1040px;margin:0 auto}
+  .trades{max-width:none}
   .chart{height:220px}
   .foot{grid-column:1 / -1}
   .related{margin-left:0;margin-right:0;padding:0;border-top:1px solid var(--border);padding-top:20px}
@@ -302,7 +319,8 @@ a{color:inherit}
   max-height:420px;overflow-y:auto}
 .pickrow{display:flex;align-items:center;gap:12px;width:100%;text-align:left;
   padding:12px 10px;border-radius:12px;min-height:62px}
-.pickrow:hover{background:#F9FAFB}
+.pickrow{cursor:pointer}
+.pickrow:hover{background:#F2F6FD}
 .pkmain{flex:1;min-width:0}
 .pkname{display:block;font-size:16px;font-weight:600;overflow:hidden;
   text-overflow:ellipsis;white-space:nowrap}
@@ -334,12 +352,56 @@ a{color:inherit}
   color:#333D4B;line-height:1.6}
 .timrow b{color:var(--text)}
 .timico{flex:0 0 22px;font-size:16px;line-height:1.4}
-.pos{margin-top:6px}
-.posbar{height:10px;border-radius:5px;position:relative;
+.pos{display:block;margin-top:8px}
+.posbar{display:block;height:10px;border-radius:5px;position:relative;
   background:linear-gradient(90deg,#3182F6,#8FBEF8 40%,#E5E8EB 55%,#F8A9B0 70%,#F04452)}
 .posmark{position:absolute;top:-5px;width:4px;height:20px;border-radius:2px;
   background:var(--text);transform:translateX(-2px)}
 .posscale{display:flex;justify-content:space-between;font-size:11px;color:var(--faint);margin-top:5px}
+.posbar .posmark{display:block}
+
+/* 직접 강화 */
+.modetabs{display:flex;gap:8px;padding:16px 20px 0;max-width:760px;margin:0 auto}
+.modeb{flex:1;padding:13px 0;border-radius:12px;background:var(--line);
+  font-size:15px;font-weight:700;color:var(--sub)}
+.modeb[data-on]{background:var(--text);color:#fff}
+.ecard{border:1px solid var(--border);border-radius:16px;padding:24px 20px;
+  text-align:center;margin-top:12px;position:relative;overflow:hidden}
+.ename{font-size:18px;font-weight:700}
+.estat{font-size:15px;color:var(--blueDark);font-weight:700;margin-top:6px}
+.edots{display:flex;justify-content:center;gap:7px;margin:16px 0 12px;flex-wrap:wrap}
+.edot{width:26px;height:26px;border-radius:50%;border:2px solid var(--border);
+  display:grid;place-items:center;font-size:13px;font-weight:800}
+.edot.ok{border-color:#12B76A;background:#E8F8F0;color:#0E9256}
+.edot.no{border-color:#F04452;background:#FEECEE;color:#D42B3A}
+.einfo{font-size:14px;color:var(--sub)}
+.einfo b{color:var(--text)}
+.eflash{margin-top:14px;padding:11px;border-radius:12px;font-size:16px;font-weight:800;
+  animation:pop .35s cubic-bezier(.34,1.56,.64,1)}
+.eflash.ok{background:#E8F8F0;color:#0E9256}
+.eflash.no{background:#FEECEE;color:#D42B3A}
+.eflash.wok{background:var(--blueBg);color:var(--blueDark);font-size:14px}
+@keyframes pop{from{transform:scale(.7);opacity:0}}
+.shake-ok{animation:bump .3s}
+.shake-no{animation:shk .3s}
+@keyframes bump{30%{transform:translateY(-5px)}}
+@keyframes shk{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+@media(prefers-reduced-motion:reduce){.eflash,.shake-ok,.shake-no{animation:none}}
+.ebtn{display:block;width:100%;margin-top:14px;padding:16px;border-radius:14px;
+  background:var(--blue);color:#fff;font-size:17px;font-weight:800;transition:.12s}
+.ebtn:hover{background:var(--blueDark)}
+.ebtn:active{transform:scale(.98)}
+.ebtnsub{display:block;font-size:13px;font-weight:600;opacity:.85;margin-top:3px}
+.ebtn.retry{background:var(--text)}
+.ecost{margin-top:12px;text-align:center;font-size:14px;color:var(--sub)}
+.ecost b{color:var(--text);font-size:16px}
+.edone{border:1px solid var(--border);border-radius:16px;padding:20px;margin-top:14px;text-align:center}
+.edoneT{font-size:19px;font-weight:800}
+.edoneS{font-size:14px;color:var(--sub);margin-top:8px;line-height:1.6}
+.edoneS b{color:var(--text)}
+.elog{display:flex;flex-direction:column;gap:6px}
+.elogrow{font-size:14px;color:var(--sub);padding:9px 12px;background:var(--line);border-radius:10px}
+
 .reshold{border:1px dashed var(--border);border-radius:16px;padding:44px 24px;
   text-align:center;margin-top:12px}
 .resicon{font-size:34px;margin-bottom:12px}
@@ -379,8 +441,9 @@ body.static_page .tabs{display:none}
   #app,#sitefoot{width:100%;max-width:1120px}
   #rail{display:block;flex:0 0 320px;width:320px;position:sticky;top:0;padding:20px;
     max-height:100vh;overflow-y:auto;scrollbar-width:thin}
-  .rows{grid-template-columns:repeat(3,minmax(0,1fr))}
-  .head,.sec{padding-left:32px;padding-right:32px}
+  .head{padding-left:32px;padding-right:32px}
+  .sec{max-width:820px;margin:0 auto;padding-left:16px;padding-right:16px}
+  .morewrap{max-width:820px;margin:0 auto}
 }
 @media(min-width:1700px){
   #shell{max-width:1680px}
@@ -523,6 +586,7 @@ var foot = '<div class="foot">실제 거래 기록을 모아 계산한 참고용
 
 function tabs(on){
   var T = [['','홈','M3 10.5 12 3l9 7.5V21H3z'],
+           ['/search','시세 검색','M11 4a7 7 0 1 1 0 14 7 7 0 0 1 0-14zM20 20l-3.5-3.5'],
            ['/rank','랭킹','M4 20V10M10 20V4M16 20v-8M22 20h-20'],
            ['/sim','작 계산','M12 2v20M5 9l7-7 7 7M5 15l7 7 7-7'],
            ['/fav','저장','M12 3l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.8 6.2 20.9l1.1-6.5L2.6 9.8l6.5-.9z']];
@@ -572,7 +636,7 @@ function skeleton(){
 /* ── 홈 ── */
 function home(){
   app.innerHTML =
-    '<div class="head"><h1 class="h1">로나 시세</h1>' +
+    '<div class="head center"><h1 class="h1">로나 시세</h1>' +
       '<div class="date">' + (D ? D.updated.replace(/-/g,'.') + ' 기준 · 아이템 ' +
         D.items.length.toLocaleString() + '종' : '불러오는 중') + '</div></div>' +
     '<div class="search">' +
@@ -581,6 +645,7 @@ function home(){
       '<input id="q" placeholder="아이템 이름 검색 (예: 자쿰의 투구)" value="' + state.q + '" autocomplete="off"/>' +
       (state.q ? '<button class="clearq" onclick="clearQ()" aria-label="지우기">&#10005;</button>' : '') +
     '</div>' +
+    '<div class="catlab">카테고리로 보기</div>' +
     '<div class="chips">' + CATS.map(function(c){
       return '<button class="chip" ' + (state.cat===c?'data-on':'') +
              ' onclick="setCat(\'' + c + '\')">' + c + '</button>'; }).join('') + '</div>' +
@@ -611,11 +676,39 @@ function list(){
   }
   var shown = r.slice(0, state.limit);
   el.innerHTML = '<div class="sec">' + (q ? '검색 결과 ' + r.length + '개' : '많이 거래된 아이템') + '</div>' +
-    '<div class="rows">' + shown.map(function(i){ return rowHtml(i); }).join('') + '</div>' +
+    '<div class="rows">' + shown.map(function(i, n){ return rowHtml(i, q ? null : n); }).join('') + '</div>' +
     (r.length > shown.length
       ? '<div class="morewrap"><button class="more" onclick="more()">' +
         (r.length - shown.length).toLocaleString() + '개 더 보기</button></div>' : '');
 }
+
+/* ── 시세 검색 ── */
+function searchPage(){
+  app.innerHTML =
+    '<div class="head center"><h1 class="h1">시세 검색</h1>' +
+      '<div class="date">아이템 이름이나 초성으로 찾아보세요 (예: ㅈㅋㅇㅌㄱ)</div></div>' +
+    '<div class="search">' +
+      '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round">' +
+      '<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>' +
+      '<input id="q" placeholder="아이템 이름 검색" value="' + state.q + '" autocomplete="off"/>' +
+      (state.q ? '<button class="clearq" onclick="clearQS()" aria-label="지우기">&#10005;</button>' : '') +
+    '</div>' +
+    '<div class="catlab">카테고리로 보기</div>' +
+    '<div class="chips">' + CATS.map(function(c){
+      return '<button class="chip" ' + (state.cat===c?'data-on':'') +
+             ' onclick="setCatS(\'' + c + '\')">' + c + '</button>'; }).join('') + '</div>' +
+    '<p class="hint" style="text-align:center;margin-top:4px">장비의 판매 옵션은 아이템 화면의 ' +
+      '거래 기록에서 검색할 수 있어요.</p>' +
+    '<div id="list">' + (D ? '' : skeleton()) + '</div>' + foot + tabs('/search');
+  var inp = document.getElementById('q');
+  if (inp){
+    inp.oninput = function(e){ state.q = e.target.value; state.limit = 36; list(); };
+    inp.focus();
+  }
+  if (D) list();
+}
+function setCatS(c){ state.cat = c; state.limit = 36; searchPage(); }
+function clearQS(){ state.q = ''; state.limit = 36; searchPage(); }
 
 /* ── 랭킹 ── */
 var rmode = 'v';
@@ -623,11 +716,11 @@ function rank(){
   var L = [['v','거래 많은'],['up','가격 오른'],['down','가격 내린']];
   var r = D.items.slice();
   if (rmode === 'v') r.sort(function(a,b){ return b.v - a.v; });
-  if (rmode === 'up') r = r.filter(function(i){ return i.v >= 20; }).sort(function(a,b){ return b.c - a.c; });
-  if (rmode === 'down') r = r.filter(function(i){ return i.v >= 20; }).sort(function(a,b){ return a.c - b.c; });
+  if (rmode === 'up') r = r.filter(function(i){ return i.v >= 100; }).sort(function(a,b){ return b.c - a.c; });
+  if (rmode === 'down') r = r.filter(function(i){ return i.v >= 100; }).sort(function(a,b){ return a.c - b.c; });
   app.innerHTML =
     '<div class="head"><h1 class="h1">이번 주 랭킹</h1>' +
-      '<div class="date">거래가 20건 이상인 아이템만 순위에 넣었어요</div></div>' +
+      '<div class="date">반짝 팔린 아이템은 빼고, 거래 100건 이상만 순위에 넣었어요</div></div>' +
     '<div class="chips">' + L.map(function(k){
       return '<button class="chip" ' + (rmode===k[0]?'data-on':'') +
              ' onclick="setR(\'' + k[0] + '\')">' + k[1] + '</button>'; }).join('') + '</div>' +
@@ -701,7 +794,7 @@ function statCards(series, it){
 }
 
 /* ── 상세 ── */
-var tsort = 'new', tpage = 0, TPP = 20;
+var tsort = 'new', tpage = 0, TPP = 20, tquery = '';
 var chartRange = 30;
 var curItem = null, curData = null;
 function setRange(d){ chartRange = d; if (curItem) detail(curItem.id); }
@@ -721,6 +814,10 @@ function setTsort(k){ tsort = k; tpage = 0; renderTrades(); }
 
 function sortedTrades(){
   var r = curData.recent.slice();
+  if (tquery){
+    var q = tquery.toLowerCase();
+    r = r.filter(function(t){ return (t.o || '').toLowerCase().indexOf(q) >= 0; });
+  }
   if (tsort === 'high') r.sort(function(a,b){ return b.u - a.u; });
   if (tsort === 'low') r.sort(function(a,b){ return a.u - b.u; });
   return r;
@@ -737,17 +834,22 @@ function pager(total){
   }
   b += '<button class="pgb" onclick="setPage(' + (tpage+1) + ')"' +
        (tpage >= pages-1 ? ' disabled' : '') + '>&#8250;</button></div>' +
-    '<div class="pgnote">전체 ' + total.toLocaleString() + '건 중 ' +
+    '<div class="pgnote">' + (tquery ? '옵션 검색 결과 ' : '전체 ') + total.toLocaleString() + '건 중 ' +
       (tpage*TPP+1) + '~' + Math.min(total, (tpage+1)*TPP) + '번째</div>';
   return b;
 }
 function setPage(i){
-  var total = curData.recent.length, pages = Math.ceil(total / TPP);
+  var total = sortedTrades().length, pages = Math.ceil(total / TPP);
   if (i < 0 || i >= pages) return;
   tpage = i; renderTrades();
 }
 function tradeRows(){
-  var r = sortedTrades().slice(tpage*TPP, (tpage+1)*TPP);
+  var all = sortedTrades();
+  if (tquery && !all.length){
+    return '<div class="empty" style="padding:36px 0"><div class="emptyT">옵션 검색 결과가 없어요</div>' +
+      '다른 검색어를 넣어보세요 (예: 공격력, STR)</div>';
+  }
+  var r = all.slice(tpage*TPP, (tpage+1)*TPP);
   return '<div class="trades">' + r.map(function(t){
     var mid = '';
     if (t.q > 1) mid += '<span class="tqtybadge num">' + t.q.toLocaleString() + '개 · 개당가</span>';
@@ -756,11 +858,13 @@ function tradeRows(){
       '<div class="ttime num">' + t.d.slice(5).replace('-','.') + '<br/>' + t.t.slice(0,5) + '</div>' +
       '<div class="tmid">' + mid + '</div>' +
       '<div class="tprice num">' + full(t.u) + '</div></div>';
-  }).join('') + '</div>' + pager(curData.recent.length);
+  }).join('') + '</div>' + pager(all.length);
 }
 function renderTrades(){
   var box = document.getElementById('tradesbox');
   if (box) box.innerHTML = tradeRows();
+  var ti = document.getElementById('tq');
+  if (ti && ti !== document.activeElement) ti.value = tquery;
   ['new','high','low'].forEach(function(k){
     var b = document.getElementById('sb-' + k);
     if (b){ if (k === tsort) b.setAttribute('data-on',''); else b.removeAttribute('data-on'); }
@@ -785,7 +889,7 @@ function detail(id){
       '<button class="chip" style="margin-top:14px" onclick="go(\'/\')">홈으로 가기</button></div>' + tabs('');
     return;
   }
-  curItem = it; tsort = 'new'; tpage = 0;
+  curItem = it; tsort = 'new'; tpage = 0; tquery = '';
   app.innerHTML = '<div class="nav">' + backBtn() + '</div>' +
     '<div class="detail"><div class="dhead">' + ico(it.cat,'dico') +
     '<div><span class="dcat">' + it.cat + '</span><h1 class="dname">' + it.n + '</h1></div></div>' +
@@ -810,14 +914,26 @@ function detail(id){
       '<div class="dhead">' + ico(it.cat,'dico') +
         '<div><span class="dcat">' + it.cat + '</span><h1 class="dname">' + it.n + '</h1></div></div>' +
 
-      '<div class="pricebox"><div class="plabel">보통 거래되는 가격</div>' +
-        '<div class="dprice num">' + money(last.p) + '<span class="dunit">메소</span></div>' +
-        '<div class="dfull num">' + full(last.p) + '</div>' + chgHtml(it.c) + '</div>' +
+      (function(){
+        var wk = periodAvg(s, 7) || last.p;
+        var prev = s.length >= 14 ? periodAvg(s.slice(0, s.length-7), 7) : null;
+        var wc = prev ? Math.round((wk/prev - 1) * 1000) / 10 : 0;
+        var wchg = !prev || !wc ? '<div class="chg flat">지난주와 비슷해요</div>'
+          : '<div class="chg ' + (wc>0?'up':'down') + '">' + (wc>0?'▲':'▼') + ' ' +
+            Math.abs(wc) + '% 지난주보다</div>';
+        return '<div class="pricebox"><div class="plabel">마지막 일주일 보통 거래가</div>' +
+          '<div class="dprice num">' + money(wk) + '<span class="dunit">메소</span></div>' +
+          '<div class="dfull num">' + full(wk) + ' · ' + D.updated.replace(/-/g,'.') + ' 집계</div>' +
+          wchg + '</div>';
+      })() +
 
       rangeChips(s.length) + chart(s.slice(-chartRange)) + statCards(s, it) +
-      judgeBox() + timingBox(d, it) + hoursBox(d.hours || []) +
+      judgeBox() + timingBox(d, it) + optSummary(d) + hoursBox(d.hours || []) +
 
       '<div class="tbar"><div class="sec">최근 거래 기록</div>' +
+        (d.recent.some(function(r){ return r.o; })
+          ? '<div class="optsearch"><input id="tq" placeholder="옵션 검색 (예: 공격력)" ' +
+            'value="' + tquery + '" autocomplete="off"/></div>' : '') +
         '<div class="sortbtns">' +
           '<button class="sortb" id="sb-new" data-on onclick="setTsort(\'new\')">최신순</button>' +
           '<button class="sortb" id="sb-high" onclick="setTsort(\'high\')">비싼순</button>' +
@@ -825,6 +941,8 @@ function detail(id){
         '</div></div><div id="tradesbox">' + tradeRows() + '</div>' +
 
       ad('detail') + relatedHtml(it) + foot + '</div>' + tabs('');
+    var ti = document.getElementById('tq');
+    if (ti) ti.oninput = function(e){ tquery = e.target.value.trim(); tpage = 0; renderTrades(); };
   }).catch(function(){
     app.innerHTML = '<div class="nav">' + backBtn() + '</div>' +
       '<div class="empty"><div class="emptyT">시세를 불러오지 못했어요</div>잠시 후 다시 시도해 주세요' +
@@ -895,6 +1013,12 @@ function chart(s){
 
 /* ══════════════ 주문서 작 계산기 v2 ══════════════ */
 var SC = { item:null, slot:null, slots:7, scroll:null, white:'none', trials:5000, pick:'item' };
+var simMode = 'play';
+var ENH = null;
+function enhReset(){
+  ENH = { left:SC.slots, succ:0, fail:0, saved:0, cost:0, log:[], flash:'', done:false };
+}
+function setMode(m){ simMode = m; if (m === 'play') enhReset(); redrawSim(); }
 var RATE = /(\d+)%$/;
 var GAIN = { '100':1, '70':1, '60':2, '30':3, '10':5 };
 
@@ -982,16 +1106,24 @@ function sim(){
   app.innerHTML =
     '<div class="head"><h1 class="h1">주문서 작 계산기</h1>' +
       '<div class="date">실제 거래 시세로 총비용과 성공 확률을 계산해요</div></div>' +
+    '<div class="modetabs">' +
+      '<button class="modeb" ' + (simMode==='play'?'data-on':'') +
+        ' onclick="setMode(\'play\')">직접 강화해보기</button>' +
+      '<button class="modeb" ' + (simMode==='calc'?'data-on':'') +
+        ' onclick="setMode(\'calc\')">확률·비용 계산</button>' +
+    '</div>' +
     '<div class="simgrid">' +
       '<div class="simcol" id="simsteps">' + simSteps() + '</div>' +
-      '<div class="simcol" id="simres">' + simResult() + '</div>' +
+      '<div class="simcol" id="simres">' +
+        (simMode === 'play' ? enhView() : simResult()) + '</div>' +
     '</div>' + ad('foot') + foot + tabs('/sim');
   bindSimSearch();
 }
 function redrawSim(){
   var a = document.getElementById('simsteps'), b = document.getElementById('simres');
   if (!a) return sim();
-  a.innerHTML = simSteps(); b.innerHTML = simResult();
+  a.innerHTML = simSteps();
+  b.innerHTML = (simMode === 'play' ? enhView() : simResult());
   bindSimSearch();
 }
 function bindSimSearch(){
@@ -1121,10 +1253,103 @@ function clearItem(){ SC.item = null; SC.scroll = null; SC.pick = 'item'; redraw
 function skipItem(){ SC.pick = 'scroll'; redrawSim(); }
 function backToItem(){ SC.pick = 'item'; redrawSim(); }
 function setSlot(s){ SC.slot = (SC.slot === s ? null : s); SC.scroll = null; redrawSim(); }
-function setSlots(n){ SC.slots = n; redrawSim(); }
-function pickScroll(id){ SC.scroll = byId[id]; redrawSim(); }
+function setSlots(n){ SC.slots = n; enhReset(); redrawSim(); }
+function pickScroll(id){ SC.scroll = byId[id]; enhReset(); redrawSim(); }
 function clearScroll(){ SC.scroll = null; redrawSim(); }
-function setWhite(v){ SC.white = v; redrawSim(); }
+function setWhite(v){ SC.white = v; enhReset(); redrawSim(); }
+
+
+/* ── 직접 강화 모드 ── */
+function enhView(){
+  if (!SC.scroll){
+    return '<div class="reshold"><div class="resicon">&#9889;</div>' +
+      '<div class="resholdT">주문서를 고르면<br/>바로 강화를 시작할 수 있어요</div>' +
+      '<div class="resholdS">실패해도 진짜 메소는 안 나가요.<br/>마음껏 연습해 보세요.</div></div>';
+  }
+  if (!ENH) enhReset();
+  var it = SC.scroll;
+  var p = scrollRate(it.n), gain = GAIN[String(p)] || 1;
+  var w = SC.white === 'none' ? null : byId[SC.white];
+  var name = SC.item ? SC.item.n : (SC.slot || '장비');
+
+  /* 슬롯 도트 */
+  var dots = '';
+  for (var i = 0; i < ENH.succ; i++) dots += '<span class="edot ok">&#10003;</span>';
+  for (var j = 0; j < ENH.fail; j++) dots += '<span class="edot no">&#10005;</span>';
+  for (var k = 0; k < ENH.left; k++) dots += '<span class="edot"></span>';
+
+  var flash = ENH.flash === 'ok' ? '<div class="eflash ok">성공! +' + gain + '</div>'
+    : ENH.flash === 'no' ? '<div class="eflash no">실패...</div>'
+    : ENH.flash === 'wok' ? '<div class="eflash wok">백의 주문서로 횟수를 되살렸어요!</div>'
+    : ENH.flash === 'wno' ? '<div class="eflash no">백의 주문서도 실패했어요</div>'
+    : '';
+
+  var h = '<div class="ecard' + (ENH.flash === 'ok' ? ' shake-ok' : ENH.flash && ENH.flash !== 'wok' ? ' shake-no' : '') + '">' +
+    '<div class="ename">' + name + '</div>' +
+    '<div class="estat num">' + (ENH.succ ? '강화 수치 +' + (ENH.succ * gain) : '아직 강화 전이에요') + '</div>' +
+    '<div class="edots">' + dots + '</div>' +
+    '<div class="einfo">남은 횟수 <b class="num">' + ENH.left + '회</b> · 성공 <b class="num up">' +
+      ENH.succ + '</b> · 실패 <b class="num down">' + ENH.fail + '</b>' +
+      (ENH.saved ? ' · 되살림 <b class="num">' + ENH.saved + '</b>' : '') + '</div>' +
+    flash + '</div>';
+
+  if (!ENH.done && ENH.left > 0){
+    h += '<button class="ebtn" onclick="enhHit()">' + it.n.replace(/ \d+%$/, '') +
+      ' 바르기<span class="ebtnsub num">' + p + '% · ' + money(it.p) + ' 메소</span></button>';
+  } else {
+    ENH.done = true;
+    var exp = SC.slots * p / 100;
+    var verdict = ENH.succ > exp + 0.5 ? '평균(' + exp.toFixed(1) + '회)보다 <b>잘 나왔어요!</b>'
+      : ENH.succ < exp - 0.5 ? '평균(' + exp.toFixed(1) + '회)보다 <b>아쉬웠어요.</b>'
+      : '딱 <b>평균</b>(' + exp.toFixed(1) + '회) 수준이에요.';
+    h += '<div class="edone"><div class="edoneT">강화 끝!</div>' +
+      '<div class="edoneS">' + ENH.succ + '번 성공해서 <b>+' + (ENH.succ * gain) + '</b> · ' + verdict + '</div>' +
+      '<div class="edoneS">쓴 메소: <b class="num">' + full(ENH.cost) + '</b></div>' +
+      '<button class="ebtn retry" onclick="enhReset();redrawSim()">같은 조건으로 다시</button></div>';
+  }
+
+  h += '<div class="ecost">지금까지 쓴 메소 <b class="num">' + full(ENH.cost) + '</b></div>';
+
+  if (ENH.log.length){
+    h += '<div class="sec" style="padding:18px 0 8px">강화 기록</div><div class="elog">' +
+      ENH.log.slice(0, 10).map(function(l){ return '<div class="elogrow">' + l + '</div>'; }).join('') +
+      '</div>';
+  }
+  h += '<p class="hint">가상 강화예요. 주문서 시세(' + money(it.p) +
+    ')는 실제 거래 기록 기준이고, 성공 1회당 +' + gain + '로 계산해요.</p>';
+  return h;
+}
+
+function enhHit(){
+  if (!ENH || ENH.left <= 0 || ENH.done) return;
+  var it = SC.scroll;
+  var p = scrollRate(it.n) / 100, gain = GAIN[String(scrollRate(it.n))] || 1;
+  var w = SC.white === 'none' ? null : byId[SC.white];
+  ENH.left--; ENH.cost += it.p;
+  var n = ENH.succ + ENH.fail + 1;
+  if (Math.random() < p){
+    ENH.succ++; ENH.flash = 'ok';
+    ENH.log.unshift(n + '번째 · <b class="up">성공</b> +' + gain);
+  } else {
+    ENH.fail++;
+    if (w){
+      ENH.cost += w.p;
+      if (Math.random() < scrollRate(w.n) / 100){
+        ENH.left++; ENH.fail--; ENH.saved++;
+        ENH.flash = 'wok';
+        ENH.log.unshift(n + '번째 · 실패 &#8594; <b>백의 주문서로 되살림</b>');
+      } else {
+        ENH.flash = 'wno';
+        ENH.log.unshift(n + '번째 · <b class="down">실패</b> (백의도 실패)');
+      }
+    } else {
+      ENH.flash = 'no';
+      ENH.log.unshift(n + '번째 · <b class="down">실패</b>');
+    }
+  }
+  var b = document.getElementById('simres');
+  if (b) b.innerHTML = enhView();
+}
 
 function simResult(){
   if (!SC.scroll){
@@ -1224,7 +1449,7 @@ function renderRail(){
         '<span class="railprice num">' + money(i.p) + '</span></button>';
     }).join('') + '</div>' +
     '<div class="railbox"><div class="railtitle">이번 주 많이 오른</div>' +
-    D.items.filter(function(i){ return i.v >= 20; })
+    D.items.filter(function(i){ return i.v >= 100; })
       .sort(function(a,b){ return b.c - a.c; }).slice(0,5).map(function(i){
       return '<button class="railrow" onclick="go(\'/item/' + i.id + '\')">' +
         '<span class="railname">' + i.n + '</span>' +
@@ -1329,6 +1554,33 @@ function tipOff(){
   if (el) el.removeAttribute('data-on');
 }
 
+/* 장비: 판매된 옵션 요약 (스탯별 최소~최대) */
+function optSummary(d){
+  var stats = {};
+  var cnt = 0;
+  (d.recent || []).forEach(function(r){
+    if (!r.o) return;
+    cnt++;
+    r.o.split(',').forEach(function(part){
+      var kv = part.split(':');
+      if (kv.length < 2) return;
+      var k = kv[0].trim(), v = parseInt(kv[kv.length-1].trim(), 10);
+      if (isNaN(v) || k === '업그레이드 가능 횟수') return;
+      if (!stats[k]) stats[k] = [v, v];
+      else { if (v < stats[k][0]) stats[k][0] = v; if (v > stats[k][1]) stats[k][1] = v; }
+    });
+  });
+  var keys = Object.keys(stats);
+  if (cnt < 5 || !keys.length) return '';
+  return '<div class="optbox"><div class="timT">최근 판매된 옵션 범위</div>' +
+    '<div class="optgrid">' + keys.map(function(k){
+      var s = stats[k];
+      return '<div class="optcell"><div class="optk">' + k + '</div>' +
+        '<div class="optv num">' + (s[0] === s[1] ? s[0] : s[0] + ' ~ ' + s[1]) + '</div></div>';
+    }).join('') + '</div>' +
+    '<p class="hint">최근 거래 ' + cnt + '건에서 관측된 값이에요. 옵션에 따라 가격 차이가 큽니다.</p></div>';
+}
+
 var WDL = ['월','화','수','목','금','토','일'];
 var HBL = ['새벽 0~4시','새벽 4~8시','오전 8~12시','낮 12~16시','저녁 16~20시','밤 20~24시'];
 function timingBox(d, it){
@@ -1364,11 +1616,11 @@ function timingBox(d, it){
   var s = d.series, ps = s.map(function(x){ return x.p; });
   var lo = Math.min.apply(null, ps), hi = Math.max.apply(null, ps);
   if (hi > lo && s.length >= 14){
-    var cur = ps[ps.length-1];
-    var pos = (cur - lo) / (hi - lo) * 100;
-    var msg = pos <= 30 ? '지금 시세는 이 기간에서 <b>싼 편</b>이에요.'
-            : pos >= 70 ? '지금 시세는 이 기간에서 <b>비싼 편</b>이에요. 급하지 않다면 기다려 보세요.'
-            : '지금 시세는 이 기간의 <b>중간 수준</b>이에요.';
+    var cur = periodAvg(s, 7) || ps[ps.length-1];
+    var pos = Math.max(0, Math.min(100, (cur - lo) / (hi - lo) * 100));
+    var msg = pos <= 30 ? '마지막 일주일 시세는 이 기간에서 <b>싼 편</b>이었어요.'
+            : pos >= 70 ? '마지막 일주일 시세는 이 기간에서 <b>비싼 편</b>이었어요.'
+            : '마지막 일주일 시세는 이 기간의 <b>중간 수준</b>이었어요.';
     rows += '<div class="timrow"><span class="timico">&#128200;</span><span>' + msg +
       '<span class="pos"><span class="posbar"><span class="posmark" style="left:' +
       pos.toFixed(1) + '%"></span></span>' +
@@ -1384,6 +1636,7 @@ function timingBox(d, it){
 function render(){
   var h = location.hash.slice(1);
   if (h.indexOf('/item/') === 0) detail(h.slice(6));
+  else if (h === '/search') searchPage();
   else if (h === '/rank') rank();
   else if (h === '/sim') sim();
   else if (h === '/fav') favs();
