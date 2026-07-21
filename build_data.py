@@ -83,6 +83,34 @@ def build(paths, outdir):
             return units[min(len(units)-1, int(len(units)*f))]
         pct = [qt(.1), qt(.25), qt(.5), qt(.75), qt(.9)]
 
+        # 오래된 구간은 주별로 압축 (최근 90일은 일별 유지)
+        if len(series) > 90:
+            old, keep = series[:-90], series[-90:]
+            import datetime as _d2
+            weeks = {}
+            for s in old:
+                y, mo, dd = map(int, s['d'].split('-'))
+                dt = _d2.date(y, mo, dd)
+                wk = dt - _d2.timedelta(days=dt.weekday())
+                weeks.setdefault(wk.isoformat(), []).append(s)
+            comp = []
+            for wd in sorted(weeks):
+                grp = weeks[wd]
+                ps = sorted(x['p'] for x in grp)
+                tot_n = sum(x['n'] for x in grp)
+                comp.append({
+                    'd': wd, 'w': 1, 'dd': len(grp),
+                    'p': ps[len(ps)//2],
+                    'a': sum(x['a'] * x['n'] for x in grp) // max(tot_n, 1),
+                    'lo': min(x['lo'] for x in grp),
+                    'hi': max(x['hi'] for x in grp),
+                    'n': tot_n, 'q': sum(x['q'] for x in grp),
+                })
+            for s in keep: s['dd'] = 1
+            series = comp + keep
+        else:
+            for s in series: s['dd'] = 1
+
         recent = sorted(rows, key=lambda r: (r['date'], r['ts']))[-100:]
         last = series[-1]
         prev = series[-2] if len(series) > 1 else last
@@ -101,7 +129,8 @@ def build(paths, outdir):
                       'c': chg, 'v': sum(s['n'] for s in series), 'g': int(is_gear)})
 
     index.sort(key=lambda x: -x['v'])
-    json.dump({'updated': max(s['d'] for s in series), 'items': index},
+    all_dates = max(max(s['d'] for s in json.load(open(f'{outdir}/item/{it["id"]}.json', encoding='utf-8'))['series']) for it in index[:50])
+    json.dump({'updated': all_dates, 'items': index},
               open(f'{outdir}/index.json', 'w', encoding='utf-8'),
               ensure_ascii=False, separators=(',', ':'))
     return index

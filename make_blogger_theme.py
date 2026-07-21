@@ -308,6 +308,10 @@ a{color:inherit}
   padding:12px 14px;margin:10px 0 0;line-height:1.6}
 .warn b{color:#7A3800}
 .linkb{font-size:13px;font-weight:600;color:var(--blue);text-decoration:underline}
+.slotlock{display:flex;align-items:center;gap:14px;padding:12px 16px;
+  background:var(--line);border-radius:12px;font-size:15px}
+.slotlock b{font-size:16px}
+.lab-sub{font-weight:400;color:var(--faint)}
 .picked{display:flex;align-items:center;gap:12px;width:100%;text-align:left;
   border:1px solid var(--border);border-radius:14px;padding:14px;margin-top:12px}
 .picked:hover{border-color:var(--blue)}
@@ -374,6 +378,13 @@ a{color:inherit}
   display:grid;place-items:center;font-size:13px;font-weight:800}
 .edot.ok{border-color:#12B76A;background:#E8F8F0;color:#0E9256}
 .edot.no{border-color:#F04452;background:#FEECEE;color:#D42B3A}
+.estats{display:flex;flex-wrap:wrap;justify-content:center;gap:7px;margin-top:10px}
+.estatchip{font-size:14px;font-weight:700;background:var(--line);border-radius:10px;
+  padding:7px 11px;color:var(--text)}
+.estatchip.up{background:#E8F8F0;color:#0E9256}
+.estatchip.down{background:#FEECEE;color:#D42B3A}
+.estatchip i{font-style:normal;font-weight:500;font-size:11px;color:var(--faint);
+  display:block;margin-top:1px}
 .einfo{font-size:14px;color:var(--sub)}
 .einfo b{color:var(--text)}
 .eflash{margin-top:14px;padding:11px;border-radius:12px;font-size:16px;font-weight:800;
@@ -768,9 +779,11 @@ function periodAvg(series, days){
 function statCards(series, it){
   var span = series.length;
   var defs = [[7,'최근 7일'],[14,'최근 2주'],[30,'최근 1달'],[90,'최근 3달']];
+  var totalDays = 0;
+  series.forEach(function(s){ totalDays += (s.dd || 1); });
   var cards = '<div class="stat"><div class="slabel">전체 거래</div>' +
     '<div class="sval num">' + it.v.toLocaleString() + '건</div>' +
-    '<div class="snote">' + span + '일간</div></div>';
+    '<div class="snote">' + totalDays + '일간</div></div>';
   var shown = 0;
   defs.forEach(function(d){
     if (span < d[0] || shown >= 3) return;
@@ -927,7 +940,8 @@ function detail(id){
           wchg + '</div>';
       })() +
 
-      rangeChips(s.length) + chart(s.slice(-chartRange)) + statCards(s, it) +
+      rangeChips(s.reduce(function(a,x){ return a + (x.dd || 1); }, 0)) +
+      chart(s.slice(-chartRange)) + statCards(s, it) +
       judgeBox() + timingBox(d, it) + optSummary(d) + hoursBox(d.hours || []) +
 
       '<div class="tbar"><div class="sec">최근 거래 기록</div>' +
@@ -1016,7 +1030,13 @@ var SC = { item:null, slot:null, slots:7, scroll:null, white:'none', trials:5000
 var simMode = 'play';
 var ENH = null;
 function enhReset(){
-  ENH = { left:SC.slots, succ:0, fail:0, saved:0, cost:0, log:[], flash:'', done:false };
+  var st = null;
+  if (SC.base && SC.base.stats){
+    st = {};
+    Object.keys(SC.base.stats).forEach(function(k){ st[k] = SC.base.stats[k]; });
+  }
+  ENH = { left:SC.slots, succ:0, fail:0, saved:0, cost:0, log:[], flash:'',
+    done:false, stats:st };
 }
 function setMode(m){ simMode = m; if (m === 'play') enhReset(); redrawSim(); }
 var RATE = /(\d+)%$/;
@@ -1050,6 +1070,45 @@ function slotOf(name){
   }
   return null;
 }
+var STAT_MAP = [['공격력','공격력'],['마력','마력'],['물리 방어력','물리방어력'],
+  ['마법 방어력','마법방어력'],['방어력','물리방어력'],['힘','STR'],['민첩성','DEX'],
+  ['민첩','DEX'],['지력','INT'],['행운','LUK'],['체력','HP'],['점프력','점프력'],
+  ['점프','점프력'],['이동속도','이동속도'],['명중률','명중률'],['회피율','회피율'],['마나','MP']];
+function scrollStat(name){
+  for (var i = 0; i < STAT_MAP.length; i++)
+    if (name.indexOf(' ' + STAT_MAP[i][0] + ' 주문서') >= 0) return STAT_MAP[i][1];
+  return null;
+}
+/* 무강화(업글횟수=최대) 매물에서 기본 옵션 추정 (스탯별 최빈값) */
+function baseStatsOf(d){
+  var mx = maxUpOf(d);
+  if (mx == null || mx <= 0) return null;
+  var acc = {};
+  var cnt = 0;
+  (d.recent || []).forEach(function(r){
+    var m = (r.o || '').match(/업그레이드 가능 횟수 : (\d+)/);
+    if (!m || parseInt(m[1],10) !== mx) return;
+    cnt++;
+    r.o.split(',').forEach(function(part){
+      var kv = part.split(':');
+      if (kv.length < 2) return;
+      var k = kv[0].trim(), v = parseInt(kv[kv.length-1].trim(), 10);
+      if (isNaN(v) || k === '업그레이드 가능 횟수') return;
+      if (!acc[k]) acc[k] = {};
+      acc[k][v] = (acc[k][v] || 0) + 1;
+    });
+  });
+  var stats = {};
+  Object.keys(acc).forEach(function(k){
+    var best = null, bc = 0;
+    Object.keys(acc[k]).forEach(function(v){
+      if (acc[k][v] > bc){ bc = acc[k][v]; best = parseInt(v,10); }
+    });
+    stats[k] = best;
+  });
+  return Object.keys(stats).length ? { stats: stats, n: cnt, maxUp: mx } : null;
+}
+
 function maxUpOf(d){
   var mx = null;
   (d.recent || []).forEach(function(r){
@@ -1064,14 +1123,19 @@ function whiteList(){
   return D.items.filter(function(i){ return isWhite(i.n); })
     .sort(function(a,b){ return scrollRate(a.n) - scrollRate(b.n); });
 }
+function isChaos(n){ return n.indexOf('혼돈의 주문서') === 0; }
 function scrollsFor(slot, q){
   var qc = cho(q || '').replace(/\s/g,'');
   return D.items.filter(function(i){
     if (i.cat !== '주문서' || scrollRate(i.n) == null || isWhite(i.n)) return false;
-    if (slot && i.n.indexOf(slot) !== 0) return false;
+    /* 혼돈의 주문서는 모든 장비 공용 */
+    if (slot && !isChaos(i.n) && i.n.indexOf(slot) !== 0) return false;
     if (!q) return true;
     return i.n.toLowerCase().indexOf(q.toLowerCase()) >= 0 || i._c.indexOf(qc) >= 0;
-  }).sort(function(a,b){ return b.v - a.v; });
+  }).sort(function(a,b){
+    if (isChaos(a.n) !== isChaos(b.n)) return isChaos(a.n) ? 1 : -1;
+    return b.v - a.v;
+  });
 }
 
 function binom(n, p){
@@ -1164,11 +1228,20 @@ function simSteps(){
 
   /* 2. 부위 + 횟수 */
   h += stepHead(2, '부위와 업그레이드 횟수', true);
-  h += '<div class="fieldlab">부위</div><div class="chips2">' +
-    SLOTS.map(function(s){
-      return '<button class="chip" ' + (SC.slot === s ? 'data-on' : '') +
-        ' onclick="setSlot(\'' + s + '\')">' + s + '</button>';
-    }).join('') + '</div>';
+  if (SC.item && SC.slot && !SC.editSlot){
+    /* 아이템에서 자동 결정 → 잠금. 틀렸을 때만 열어서 수정 */
+    h += '<div class="fieldlab">부위</div>' +
+      '<div class="slotlock"><b>' + SC.slot + '</b>' +
+      '<button class="linkb" onclick="editSlot()">부위가 달라요</button></div>';
+  } else {
+    h += '<div class="fieldlab">부위' +
+      (SC.item ? ' <span class="lab-sub">— 이 장비의 실제 부위를 골라주세요</span>' : '') +
+      '</div><div class="chips2">' +
+      SLOTS.map(function(s){
+        return '<button class="chip" ' + (SC.slot === s ? 'data-on' : '') +
+          ' onclick="setSlot(\'' + s + '\')">' + s + '</button>';
+      }).join('') + '</div>';
+  }
   h += '<div class="fieldlab">업그레이드 가능 횟수</div><div class="chips2">' +
     [1,2,3,5,7,10].map(function(k){
       return '<button class="chip" ' + (SC.slots === k ? 'data-on' : '') +
@@ -1194,16 +1267,15 @@ function simSteps(){
     return h;
   }
 
-  /* 4. 백의 */
-  h += stepHead(4, '백의 주문서 사용', true);
-  h += '<div class="chips2">' +
+  /* 백의: 주문서 단계의 하위 옵션 */
+  h += '<div class="fieldlab">실패 대비 · 백의 주문서 <span class="lab-sub">— 실패해도 횟수를 되살려요</span></div>' +
+  '<div class="chips2">' +
     '<button class="chip" ' + (SC.white==='none'?'data-on':'') + ' onclick="setWhite(\'none\')">안 씀</button>' +
     whiteList().map(function(x){
       return '<button class="chip" ' + (SC.white===x.id?'data-on':'') +
         ' onclick="setWhite(\'' + x.id + '\')">' + x.n.replace('주문서 ','') +
         ' · ' + money(x.p) + '</button>';
-    }).join('') + '</div>' +
-    '<p class="hint">실패해도 업그레이드 횟수를 되살리는 주문서예요.</p>';
+    }).join('') + '</div>';
   return h;
 }
 
@@ -1228,10 +1300,12 @@ function gearList(q){
 function scrollListUI(q){
   var el = document.getElementById('scrolllist');
   if (!el) return;
-  var r = scrollsFor(q ? null : SC.slot, q);
-  if (!r.length && SC.slot) r = scrollsFor(null, q);
-  r = r.slice(0, 24);
-  if (!r.length){ el.innerHTML = '<div class="empty">찾는 주문서가 없어요</div>'; return; }
+  var r = scrollsFor(SC.slot, q).slice(0, 24);
+  if (!r.length){
+    el.innerHTML = '<div class="empty">' + (SC.slot ? SC.slot + '에 쓸 수 있는 주문서가 없어요'
+      : '찾는 주문서가 없어요') + '</div>';
+    return;
+  }
   el.innerHTML = '<div class="picklist">' + r.map(function(i){
     return '<button class="pickrow" onclick="pickScroll(\'' + i.id + '\')">' + ico('주문서') +
       '<span class="pkmain"><span class="pkname">' + i.n + '</span>' +
@@ -1242,17 +1316,23 @@ function scrollListUI(q){
 
 function pickItem(id){
   var it = byId[id];
-  SC.item = it; SC.slot = slotOf(it.n); SC.scroll = null;
+  SC.item = it; SC.slot = slotOf(it.n); SC.scroll = null; SC.base = null; SC.editSlot = false;
   redrawSim();
   get('/item/' + id + '.json').then(function(d){
     var mu = maxUpOf(d);
-    if (mu != null && mu > 0){ SC.slots = mu; redrawSim(); }
+    if (mu != null && mu > 0) SC.slots = mu;
+    SC.base = baseStatsOf(d);
+    enhReset(); redrawSim();
   }).catch(function(){});
 }
-function clearItem(){ SC.item = null; SC.scroll = null; SC.pick = 'item'; redrawSim(); }
+function clearItem(){ SC.item = null; SC.scroll = null; SC.base = null; SC.pick = 'item'; enhReset(); redrawSim(); }
 function skipItem(){ SC.pick = 'scroll'; redrawSim(); }
 function backToItem(){ SC.pick = 'item'; redrawSim(); }
-function setSlot(s){ SC.slot = (SC.slot === s ? null : s); SC.scroll = null; redrawSim(); }
+function setSlot(s){
+  SC.slot = s; SC.scroll = null; SC.editSlot = false;
+  enhReset(); redrawSim();
+}
+function editSlot(){ SC.editSlot = true; redrawSim(); }
 function setSlots(n){ SC.slots = n; enhReset(); redrawSim(); }
 function pickScroll(id){ SC.scroll = byId[id]; enhReset(); redrawSim(); }
 function clearScroll(){ SC.scroll = null; redrawSim(); }
@@ -1284,9 +1364,21 @@ function enhView(){
     : ENH.flash === 'wno' ? '<div class="eflash no">백의 주문서도 실패했어요</div>'
     : '';
 
+  var statH = '';
+  if (ENH.stats){
+    statH = '<div class="estats">' + Object.keys(ENH.stats).map(function(k){
+      var base = SC.base.stats[k], now = ENH.stats[k];
+      var cls = now > base ? 'up' : now < base ? 'down' : '';
+      return '<span class="estatchip num ' + cls + '">' + k + ' ' + now +
+        (now !== base ? '<i>기본 ' + base + '</i>' : '') + '</span>';
+    }).join('') + '</div>' +
+    '<div class="einfo" style="margin-top:2px">기본 옵션은 무강화 매물 ' +
+      SC.base.n + '건에서 가장 흔한 값이에요</div>';
+  }
   var h = '<div class="ecard' + (ENH.flash === 'ok' ? ' shake-ok' : ENH.flash && ENH.flash !== 'wok' ? ' shake-no' : '') + '">' +
     '<div class="ename">' + name + '</div>' +
-    '<div class="estat num">' + (ENH.succ ? '강화 수치 +' + (ENH.succ * gain) : '아직 강화 전이에요') + '</div>' +
+    (statH || '<div class="estat num">' +
+      (ENH.succ ? '강화 수치 +' + (ENH.succ * gain) : '아직 강화 전이에요') + '</div>') +
     '<div class="edots">' + dots + '</div>' +
     '<div class="einfo">남은 횟수 <b class="num">' + ENH.left + '회</b> · 성공 <b class="num up">' +
       ENH.succ + '</b> · 실패 <b class="num down">' + ENH.fail + '</b>' +
@@ -1302,8 +1394,13 @@ function enhView(){
     var verdict = ENH.succ > exp + 0.5 ? '평균(' + exp.toFixed(1) + '회)보다 <b>잘 나왔어요!</b>'
       : ENH.succ < exp - 0.5 ? '평균(' + exp.toFixed(1) + '회)보다 <b>아쉬웠어요.</b>'
       : '딱 <b>평균</b>(' + exp.toFixed(1) + '회) 수준이에요.';
-    h += '<div class="edone"><div class="edoneT">강화 끝!</div>' +
-      '<div class="edoneS">' + ENH.succ + '번 성공해서 <b>+' + (ENH.succ * gain) + '</b> · ' + verdict + '</div>' +
+    var finalH = '';
+    if (ENH.stats){
+      finalH = '<div class="edoneS">최종 옵션: <b>' + Object.keys(ENH.stats).map(function(k){
+        return k + ' ' + ENH.stats[k]; }).join(' · ') + '</b></div>';
+    }
+    h += '<div class="edone"><div class="edoneT">강화 끝!</div>' + finalH +
+      '<div class="edoneS">' + ENH.succ + '번 성공 · ' + verdict + '</div>' +
       '<div class="edoneS">쓴 메소: <b class="num">' + full(ENH.cost) + '</b></div>' +
       '<button class="ebtn retry" onclick="enhReset();redrawSim()">같은 조건으로 다시</button></div>';
   }
@@ -1328,8 +1425,28 @@ function enhHit(){
   ENH.left--; ENH.cost += it.p;
   var n = ENH.succ + ENH.fail + 1;
   if (Math.random() < p){
-    ENH.succ++; ENH.flash = 'ok';
-    ENH.log.unshift(n + '번째 · <b class="up">성공</b> +' + gain);
+    ENH.succ++;
+    if (isChaos(it.n)){
+      ENH.flash = 'ok';
+      if (ENH.stats){
+        var moves = [];
+        Object.keys(ENH.stats).forEach(function(k){
+          var dl = Math.floor(Math.random() * 11) - 5;   /* -5 ~ +5 */
+          ENH.stats[k] = Math.max(0, ENH.stats[k] + dl);
+          moves.push(k + ' ' + (dl >= 0 ? '+' : '') + dl);
+        });
+        ENH.log.unshift(n + '번째 · <b class="up">성공</b> (혼돈) ' + moves.join(', '));
+      } else {
+        ENH.log.unshift(n + '번째 · <b class="up">성공</b> (혼돈: 옵션 -5~+5 변동)');
+      }
+    } else {
+      var tgt = scrollStat(it.n);
+      if (ENH.stats && tgt){
+        ENH.stats[tgt] = (ENH.stats[tgt] || 0) + gain;
+      }
+      ENH.flash = 'ok';
+      ENH.log.unshift(n + '번째 · <b class="up">성공</b> ' + (tgt || '') + ' +' + gain);
+    }
   } else {
     ENH.fail++;
     if (w){
@@ -1366,14 +1483,31 @@ function simResult(){
 
   var h = '<div class="resbox"><div class="rescap">' + title + ' · ' + it.n + '</div>';
   var dist, note = '';
+  var finalNote = '';
+  if (SC.base && SC.base.stats){
+    if (isChaos(it.n)){
+      finalNote = '<p class="hint">혼돈의 주문서는 성공할 때마다 각 옵션이 <b>-5 ~ +5</b>씩 ' +
+        '무작위로 변해요. 평균적으로는 오르지 않아서, 큰 이득도 큰 손해도 날 수 있어요.</p>';
+    } else {
+      var tg = scrollStat(it.n);
+      if (tg){
+        var expGain = Math.round(n * (p) * gain * 10) / 10;
+        var b = SC.base.stats[tg] || 0;
+        finalNote = '<p class="hint">기본 ' + tg + ' <b>' + b + '</b>에서 평균 <b>' +
+          tg + ' ' + Math.round((b + expGain) * 10) / 10 + '</b> 정도가 될 것으로 보여요.</p>';
+      }
+    }
+  }
 
   if (!w){
     var pmf = binom(n, p), cost = n * it.p, expS = n * p;
     h += '<div class="bigrow"><span>주문서 필요 개수</span><b class="num">' + n + '개</b></div>' +
       '<div class="bigrow"><span>총 비용</span><b class="num">' + full(cost) + '</b></div>' +
       '<div class="bigrow"><span>평균 성공 횟수</span><b class="num">' + expS.toFixed(1) + '회</b></div>' +
-      '<div class="bigrow"><span>예상 상승치</span><b class="num">약 +' + Math.round(expS*gain) + '</b></div>' +
-      '</div>';
+      (isChaos(it.n)
+        ? '<div class="bigrow"><span>예상 상승치</span><b class="num">옵션마다 -5 ~ +5</b></div>'
+        : '<div class="bigrow"><span>예상 상승치</span><b class="num">약 +' + Math.round(expS*gain) + '</b></div>') +
+      '</div>' + finalNote;
     var mx = Math.max.apply(null, pmf);
     dist = pmf.map(function(v,k){ return [k, v, v/mx]; });
     note = '<p class="hint">' + n + '개를 다 발라도 <b>' + ((1-pmf[0])*100).toFixed(1) +
@@ -1540,7 +1674,8 @@ function tip(i, x, y){
     return '<div class="tiprow"><span class="tipk">' + k + '</span>' +
            '<span class="tipv">' + val + '</span></div>';
   }
-  el.innerHTML = '<div class="tipd">' + d.d.slice(5).replace('-','월 ') + '일</div>' +
+  el.innerHTML = '<div class="tipd">' + d.d.slice(5).replace('-','월 ') + '일' +
+    (d.w ? ' 주간' : '') + '</div>' +
     row('거래', d.n.toLocaleString() + '건') +
     row('평균가', money(d.a != null ? d.a : d.p)) +
     row('최고가', money(d.hi)) +
@@ -1628,8 +1763,10 @@ function timingBox(d, it){
       money(hi) + '</span></span></span></span></div>';
   }
   if (!rows) return '';
+  var tdays = 0;
+  s.forEach(function(x){ tdays += (x.dd || 1); });
   return '<div class="timing"><div class="timT">언제 사고팔면 좋을까요</div>' + rows +
-    '<p class="hint" style="margin-top:10px">최근 ' + s.length +
+    '<p class="hint" style="margin-top:10px">최근 ' + tdays +
     '일 거래 기록으로 계산했어요. 참고용이에요.</p></div>';
 }
 
