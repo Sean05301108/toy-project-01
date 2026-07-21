@@ -60,10 +60,22 @@ def build(paths, outdir):
                 'n': len(daily[date]),                  # 거래 건수
                 'q': sum(r['qty'] for r in daily[date]) # 거래 수량
             })
-        # 거래 시간대 (24칸)
+        # 거래 시간대 (24칸: 건수) + 시간대별 중앙단가 (6칸: 4시간 구간)
         hours = [0]*24
+        hbins = [[] for _ in range(6)]
         for r in rows:
-            hours[int(r['ts'][:2])] += 1
+            h = int(r['ts'][:2])
+            hours[h] += 1
+            hbins[h//4].append(r['unit'])
+        hmed = [int(statistics.median(b)) if len(b) >= 30 else None for b in hbins]
+
+        # 요일별 중앙단가 (월=0)
+        import datetime as _dt
+        wbins = [[] for _ in range(7)]
+        for r in rows:
+            y, mo, dd = map(int, r['date'].split('-'))
+            wbins[_dt.date(y, mo, dd).weekday()].append(r['unit'])
+        wmed = [int(statistics.median(b)) if len(b) >= 30 else None for b in wbins]
 
         # 가격 분위수 (적정가 판별용) - 전체 거래 기준
         units = sorted(r['unit'] for r in rows)
@@ -78,7 +90,7 @@ def build(paths, outdir):
 
         json.dump({
             'id': iid, 'name': name, 'gear': is_gear,
-            'hours': hours, 'pct': pct,
+            'hours': hours, 'pct': pct, 'hmed': hmed, 'wmed': wmed,
             'series': series,
             'recent': [{'d': r['date'], 't': r['ts'], 'q': r['qty'],
                         'u': r['unit'], 'o': r['opt']} for r in reversed(recent)]
